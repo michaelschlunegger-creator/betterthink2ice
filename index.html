@@ -6,19 +6,24 @@
   <title>BetterThink2Ice – Message Safety Check</title>
   <style>
     :root {
-      --bg: #f3f4f6;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #4b5563;
-      --primary: #2563eb;
-      --border: #e5e7eb;
-      --chip-bg: #e5e7eb;
-      --chip-selected: #2563eb;
+      --bg: radial-gradient(circle at 15% 20%, rgba(74, 222, 128, 0.18), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.16), transparent 32%),
+        radial-gradient(circle at 15% 75%, rgba(14, 165, 233, 0.18), transparent 35%),
+        linear-gradient(135deg, #f5f7fb 0%, #eef2ff 52%, #f8fbff 100%);
+      --card: rgba(255, 255, 255, 0.76);
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #007aff;
+      --primary-strong: #0052ce;
+      --border: rgba(255, 255, 255, 0.65);
+      --chip-bg: rgba(255, 255, 255, 0.88);
+      --chip-selected: linear-gradient(135deg, #0ea5e9, #6366f1);
       --chip-selected-text: #fff;
-      --danger: #fca5a5;
-      --danger-strong: #f87171;
+      --danger: #fecdd3;
+      --danger-strong: #ef4444;
       --warning: #fbbf24;
       --safe: #34d399;
+      --glow: 0 10px 40px rgba(99, 102, 241, 0.2);
     }
 
     * {
@@ -27,182 +32,378 @@
 
     body {
       margin: 0;
-      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-family: "SF Pro Display", "Inter", "Segoe UI", -apple-system, system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       display: flex;
       justify-content: center;
-      padding: 32px 12px;
+      padding: 46px 14px;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 16px);
+      mask-image: radial-gradient(circle at center, black 0%, transparent 65%);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    body::after {
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+      mask-image: linear-gradient(180deg, black, transparent);
+      opacity: 1;
     }
 
     .container {
-      max-width: 880px;
+      position: relative;
+      max-width: 980px;
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
+      z-index: 1;
+      backdrop-filter: blur(6px);
     }
 
     .card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 22px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border-radius: 20px;
+      padding: 22px 24px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(18px) saturate(1.1);
+      -webkit-backdrop-filter: blur(18px) saturate(1.1);
     }
 
     h1 {
-      margin: 0 0 6px;
-      font-size: 24px;
+      margin: 0 0 8px;
+      font-size: 28px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #22d3ee);
+      box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.18), 0 0 24px rgba(16, 185, 129, 0.45);
     }
 
     p {
       margin: 8px 0;
       color: var(--muted);
-      line-height: 1.5;
+      line-height: 1.6;
+    }
+
+    .subhead {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #0f172a;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .subhead span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(0, 122, 255, 0.16), rgba(99, 102, 241, 0.1));
+      color: #0f172a;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .subtle {
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(15, 23, 42, 0.65);
     }
 
     textarea {
       width: 100%;
-      min-height: 140px;
+      min-height: 180px;
       resize: vertical;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
       font-size: 15px;
       font-family: inherit;
       color: var(--text);
-      background: #f9fafb;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), var(--glow);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.18), var(--glow);
+      transform: translateY(-1px);
     }
 
     .question {
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     .question-title {
-      margin-bottom: 8px;
-      font-weight: 600;
+      margin-bottom: 6px;
+      font-weight: 700;
       color: var(--text);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .question-title .hint {
+      font-weight: 600;
+      font-size: 13px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.04);
+      color: var(--muted);
+      border: 1px solid rgba(148, 163, 184, 0.4);
     }
 
     .chip-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
     }
 
     .chip {
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 10px 15px;
+      border-radius: 999px;
       background: var(--chip-bg);
       color: var(--text);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
       user-select: none;
       font-size: 14px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 22px rgba(15, 23, 42, 0.05);
     }
 
     .chip:hover {
-      border-color: var(--primary);
-      color: var(--primary);
+      border-color: rgba(3, 102, 214, 0.45);
+      color: var(--primary-strong);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(3, 102, 214, 0.12);
     }
 
     .chip.selected {
       background: var(--chip-selected);
-      border-color: var(--chip-selected);
+      border-color: transparent;
       color: var(--chip-selected-text);
-      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 12px 28px rgba(14, 165, 233, 0.25), var(--glow);
+      transform: translateY(-1px);
     }
 
     .actions {
       display: flex;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 12px;
+      margin-top: 10px;
       flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .progress-pill {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(0, 122, 255, 0.14), rgba(79, 70, 229, 0.12));
+      color: #0f172a;
+      font-weight: 650;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .progress-pill .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, #3b82f6);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
     }
 
     button {
       border: none;
-      border-radius: 10px;
-      padding: 10px 16px;
+      border-radius: 12px;
+      padding: 11px 18px;
       font-size: 15px;
       cursor: pointer;
-      transition: transform 0.1s ease, box-shadow 0.2s ease;
-      font-weight: 600;
+      transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      font-weight: 650;
+      letter-spacing: -0.01em;
     }
 
     button.primary {
-      background: var(--primary);
+      background: linear-gradient(135deg, #007aff, #4f46e5);
       color: white;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 16px 40px rgba(79, 70, 229, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     button.secondary {
-      background: #e5e7eb;
+      background: rgba(255, 255, 255, 0.8);
       color: #111827;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
     }
 
     button:hover {
       transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    button:focus-visible {
+      outline: 2px solid rgba(79, 70, 229, 0.4);
+      outline-offset: 2px;
     }
 
     .result {
       display: none;
       border-left: 5px solid transparent;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.8));
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(14, 165, 233, 0.06), rgba(99, 102, 241, 0.06));
+      pointer-events: none;
+      mix-blend-mode: screen;
     }
 
     .result.safe {
-      background: #ecfdf3;
       border-left-color: var(--safe);
+      box-shadow: 0 18px 36px rgba(52, 211, 153, 0.16);
     }
 
     .result.caution {
-      background: #fffbeb;
       border-left-color: var(--warning);
+      box-shadow: 0 18px 36px rgba(251, 191, 36, 0.16);
     }
 
     .result.danger {
-      background: #fef2f2;
       border-left-color: var(--danger-strong);
+      box-shadow: 0 18px 36px rgba(239, 68, 68, 0.14);
     }
 
     .result-title {
-      margin: 0 0 6px;
+      margin: 0 0 8px;
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .result-title::after {
+      content: "Live guidance";
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.05);
+      color: #0f172a;
       font-weight: 700;
-      font-size: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
     }
 
     ul {
-      margin: 8px 0 0 16px;
+      margin: 10px 0 0 18px;
       color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .support-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .support-chip {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: #0f172a;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 20px rgba(15, 23, 42, 0.08);
+      font-weight: 650;
     }
 
     @media (max-width: 600px) {
       body {
-        padding: 16px 10px;
+        padding: 20px 12px;
+      }
+
+      .card {
+        padding: 18px 16px;
+      }
+
+      .actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .progress-pill {
+        margin-left: 0;
       }
     }
   </style>
 </head>
-<body>
+  <body>
   <main class="container">
     <section class="card">
       <h1>BetterThink2Ice – Message Safety Check</h1>
-      <p>Paste or type your message and take a quick emotional pulse check before hitting send. A few seconds here could save hours of regret.</p>
+      <div class="subhead">
+        A gentle, Apple-inspired coach before you press send.
+        <span><strong>1</strong> minute calm-check • Guided in-line tips</span>
+      </div>
+      <p>Paste or type your message and follow the guided prompts. Each response updates your personal readiness meter so you know whether to send, hold, or reach out.</p>
     </section>
 
     <section class="card">
       <div class="question">
-        <div class="question-title">Your message</div>
+        <div class="question-title">
+          Your message
+          <span class="hint">Keep it short & specific</span>
+        </div>
         <textarea id="message" placeholder="Type or paste the message you plan to send..."></textarea>
       </div>
+      <p class="subtle">Tip: Lead with curiosity. For example, “Can we talk about what happened earlier?” instead of accusations.</p>
     </section>
 
     <section class="card" id="questions-card">
       <div class="question" data-question="q1">
-        <div class="question-title">1. Emotional state (1–5, where 1 = very bad, 5 = very good)</div>
+        <div class="question-title">
+          1. Emotional state (1–5, where 1 = very bad, 5 = very good)
+          <span class="hint">Notice your body</span>
+        </div>
         <div class="chip-row">
           <div class="chip" data-value="1">1</div>
           <div class="chip" data-value="2">2</div>
@@ -213,7 +414,10 @@
       </div>
 
       <div class="question" data-question="q2">
-        <div class="question-title">2. Stress level (1–5, where 1 = very stressed, 5 = no stress)</div>
+        <div class="question-title">
+          2. Stress level (1–5, where 1 = very stressed, 5 = no stress)
+          <span class="hint">Breathe for 5 seconds</span>
+        </div>
         <div class="chip-row">
           <div class="chip" data-value="1">1</div>
           <div class="chip" data-value="2">2</div>
@@ -224,7 +428,10 @@
       </div>
 
       <div class="question" data-question="q3">
-        <div class="question-title">3. Have you felt hurt, rejected, or angry today?</div>
+        <div class="question-title">
+          3. Have you felt hurt, rejected, or angry today?
+          <span class="hint">Name the feeling</span>
+        </div>
         <div class="chip-row">
           <div class="chip" data-value="Yes, a lot">Yes, a lot</div>
           <div class="chip" data-value="Yes, a little">Yes, a little</div>
@@ -234,7 +441,10 @@
       </div>
 
       <div class="question" data-question="q4">
-        <div class="question-title">4. Do you feel emotionally safe right now?</div>
+        <div class="question-title">
+          4. Do you feel emotionally safe right now?
+          <span class="hint">If unsure, pause</span>
+        </div>
         <div class="chip-row">
           <div class="chip" data-value="Yes">Yes</div>
           <div class="chip" data-value="Not sure">Not sure</div>
@@ -243,7 +453,10 @@
       </div>
 
       <div class="question" data-question="q5">
-        <div class="question-title">5. Any thoughts of harming yourself or wishing you were not here?</div>
+        <div class="question-title">
+          5. Any thoughts of harming yourself or wishing you were not here?
+          <span class="hint">You deserve support</span>
+        </div>
         <div class="chip-row">
           <div class="chip" data-value="No">No</div>
           <div class="chip" data-value="A little">A little</div>
@@ -254,6 +467,10 @@
       <div class="actions">
         <button class="primary" id="check">Check Safety</button>
         <button class="secondary" id="reset">Reset</button>
+        <div class="progress-pill" id="progress-pill">
+          <span class="dot"></span>
+          <span id="progress-label">0/5 answered</span>
+        </div>
       </div>
     </section>
 
@@ -261,11 +478,23 @@
       <div class="result-title" id="result-title"></div>
       <p id="result-text"></p>
       <ul id="result-list"></ul>
+      <div class="support-bar">
+        <div class="support-chip">✨ Try a 30s box-breathing reset</div>
+        <div class="support-chip">📞 Reach out to a trusted person</div>
+        <div class="support-chip">📝 Save as draft & revisit later</div>
+      </div>
     </section>
   </main>
 
   <script>
     const answers = { q1: null, q2: null, q3: null, q4: null, q5: null };
+    const progressLabel = document.getElementById('progress-label');
+    const resultCard = document.getElementById('result-card');
+
+    function updateProgress() {
+      const answeredCount = Object.values(answers).filter((val) => val !== null).length;
+      progressLabel.textContent = `${answeredCount}/5 answered`;
+    }
 
     function clearSelections(questionEl) {
       questionEl.querySelectorAll('.chip').forEach((chip) => chip.classList.remove('selected'));
@@ -279,6 +508,7 @@
       clearSelections(questionEl);
       chip.classList.add('selected');
       answers[questionKey] = chip.dataset.value;
+      updateProgress();
     }
 
     function evaluateScore() {
@@ -312,7 +542,6 @@
     }
 
     function showResult({ score, suicideFlag }) {
-      const resultCard = document.getElementById('result-card');
       const titleEl = document.getElementById('result-title');
       const textEl = document.getElementById('result-text');
       const listEl = document.getElementById('result-list');
@@ -368,6 +597,7 @@
       }
 
       resultCard.style.display = 'block';
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function validateInputs() {
@@ -384,13 +614,15 @@
       document.getElementById('message').value = '';
       document.querySelectorAll('.chip.selected').forEach((chip) => chip.classList.remove('selected'));
       Object.keys(answers).forEach((key) => (answers[key] = null));
-      const resultCard = document.getElementById('result-card');
       resultCard.style.display = 'none';
+      updateProgress();
     }
 
     document.querySelectorAll('.question').forEach((question) => {
       question.addEventListener('click', handleChipClick);
     });
+
+    updateProgress();
 
     document.getElementById('check').addEventListener('click', () => {
       if (!validateInputs()) return;
