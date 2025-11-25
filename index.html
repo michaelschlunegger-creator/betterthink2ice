@@ -5,262 +5,261 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BetterThink2Ice – Message Safety Check</title>
   <link rel="stylesheet" href="style.css" />
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-  <main class="container">
-    <section class="card">
-      <h1>BetterThink2Ice – Message Safety Check</h1>
-      <div class="subhead">
-        A gentle, Apple-inspired coach before you press send.
-        <span><strong>1</strong> minute calm-check • Guided in-line tips</span>
-      </div>
-      <p>Paste or type your message and follow the guided prompts. Each response updates your personal readiness meter so you know whether to send, hold, or reach out.</p>
-    </section>
+  <div id="root">Loading safety coach...</div>
 
-    <section class="card">
-      <div class="question">
-        <div class="question-title">
-          Your message
-          <span class="hint">Keep it short & specific</span>
-        </div>
-        <textarea id="message" placeholder="Type or paste the message you plan to send..."></textarea>
-      </div>
-      <p class="subtle">Tip: Lead with curiosity. For example, “Can we talk about what happened earlier?” instead of accusations.</p>
-    </section>
+  <script type="text/babel">
+    const { useMemo, useState } = React;
 
-    <section class="card" id="questions-card">
-      <div class="question" data-question="q1">
-        <div class="question-title">
-          1. Emotional state (1–5, where 1 = very bad, 5 = very good)
-          <span class="hint">Notice your body</span>
-        </div>
-        <div class="chip-row">
-          <div class="chip" data-value="1">1</div>
-          <div class="chip" data-value="2">2</div>
-          <div class="chip" data-value="3">3</div>
-          <div class="chip" data-value="4">4</div>
-          <div class="chip" data-value="5">5</div>
-        </div>
-      </div>
+    const questionData = [
+      {
+        id: 'q1',
+        title: '1. Emotional state (1–5, where 1 = very bad, 5 = very good)',
+        hint: 'Notice your body',
+        options: ['1', '2', '3', '4', '5'],
+      },
+      {
+        id: 'q2',
+        title: '2. Stress level (1–5, where 1 = very stressed, 5 = no stress)',
+        hint: 'Breathe for 5 seconds',
+        options: ['1', '2', '3', '4', '5'],
+      },
+      {
+        id: 'q3',
+        title: '3. Have you felt hurt, rejected, or angry today?',
+        hint: 'Name the feeling',
+        options: ['Yes, a lot', 'Yes, a little', 'Not really', 'No'],
+      },
+      {
+        id: 'q4',
+        title: '4. Do you feel emotionally safe right now?',
+        hint: 'If unsure, pause',
+        options: ['Yes', 'Not sure', 'No'],
+      },
+      {
+        id: 'q5',
+        title: '5. Any thoughts of harming yourself or wishing you were not here?',
+        hint: 'You deserve support',
+        options: ['No', 'A little', 'Yes'],
+      },
+    ];
 
-      <div class="question" data-question="q2">
-        <div class="question-title">
-          2. Stress level (1–5, where 1 = very stressed, 5 = no stress)
-          <span class="hint">Breathe for 5 seconds</span>
-        </div>
-        <div class="chip-row">
-          <div class="chip" data-value="1">1</div>
-          <div class="chip" data-value="2">2</div>
-          <div class="chip" data-value="3">3</div>
-          <div class="chip" data-value="4">4</div>
-          <div class="chip" data-value="5">5</div>
-        </div>
-      </div>
+    const initialAnswers = questionData.reduce((acc, q) => ({ ...acc, [q.id]: null }), {});
 
-      <div class="question" data-question="q3">
-        <div class="question-title">
-          3. Have you felt hurt, rejected, or angry today?
-          <span class="hint">Name the feeling</span>
-        </div>
-        <div class="chip-row">
-          <div class="chip" data-value="Yes, a lot">Yes, a lot</div>
-          <div class="chip" data-value="Yes, a little">Yes, a little</div>
-          <div class="chip" data-value="Not really">Not really</div>
-          <div class="chip" data-value="No">No</div>
-        </div>
-      </div>
-
-      <div class="question" data-question="q4">
-        <div class="question-title">
-          4. Do you feel emotionally safe right now?
-          <span class="hint">If unsure, pause</span>
-        </div>
-        <div class="chip-row">
-          <div class="chip" data-value="Yes">Yes</div>
-          <div class="chip" data-value="Not sure">Not sure</div>
-          <div class="chip" data-value="No">No</div>
-        </div>
-      </div>
-
-      <div class="question" data-question="q5">
-        <div class="question-title">
-          5. Any thoughts of harming yourself or wishing you were not here?
-          <span class="hint">You deserve support</span>
-        </div>
-        <div class="chip-row">
-          <div class="chip" data-value="No">No</div>
-          <div class="chip" data-value="A little">A little</div>
-          <div class="chip" data-value="Yes">Yes</div>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="check">Check Safety</button>
-        <button class="secondary" id="reset">Reset</button>
-        <div class="progress-pill" id="progress-pill">
-          <span class="dot"></span>
-          <span id="progress-label">0/5 answered</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="card result" id="result-card">
-      <div class="result-title" id="result-title"></div>
-      <p id="result-text"></p>
-      <ul id="result-list"></ul>
-      <div class="support-bar">
-        <div class="support-chip">✨ Try a 30s box-breathing reset</div>
-        <div class="support-chip">📞 Reach out to a trusted person</div>
-        <div class="support-chip">📝 Save as draft & revisit later</div>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    const answers = { q1: null, q2: null, q3: null, q4: null, q5: null };
-    const progressLabel = document.getElementById('progress-label');
-    const resultCard = document.getElementById('result-card');
-
-    function updateProgress() {
-      const answeredCount = Object.values(answers).filter((val) => val !== null).length;
-      progressLabel.textContent = `${answeredCount}/5 answered`;
-    }
-
-    function clearSelections(questionEl) {
-      questionEl.querySelectorAll('.chip').forEach((chip) => chip.classList.remove('selected'));
-    }
-
-    function handleChipClick(event) {
-      const chip = event.target;
-      if (!chip.classList.contains('chip')) return;
-      const questionEl = chip.closest('[data-question]');
-      const questionKey = questionEl.dataset.question;
-      clearSelections(questionEl);
-      chip.classList.add('selected');
-      answers[questionKey] = chip.dataset.value;
-      updateProgress();
-    }
-
-    function evaluateScore() {
-      let score = 0;
-      let suicideFlag = false;
-
-      const q1 = Number(answers.q1);
-      const q2 = Number(answers.q2);
-      const q3 = answers.q3;
-      const q4 = answers.q4;
-      const q5 = answers.q5;
-
-      if (q1 === 1 || q1 === 2) score += 2;
-      else if (q1 === 3) score += 1;
-
-      if (q2 === 1 || q2 === 2) score += 2;
-      else if (q2 === 3) score += 1;
-
-      if (q3 === 'Yes, a lot') score += 2;
-      else if (q3 === 'Yes, a little') score += 1;
-
-      if (q4 === 'No') score += 2;
-      else if (q4 === 'Not sure') score += 1;
-
-      if (q5 === 'A little' || q5 === 'Yes') {
-        score += 3;
-        suicideFlag = true;
-      }
-
-      return { score, suicideFlag };
-    }
-
-    function showResult({ score, suicideFlag }) {
-      const titleEl = document.getElementById('result-title');
-      const textEl = document.getElementById('result-text');
-      const listEl = document.getElementById('result-list');
-
-      resultCard.classList.remove('safe', 'caution', 'danger');
-
-      listEl.innerHTML = '';
-
-      const addListItems = (items) => {
-        items.forEach((item) => {
-          const li = document.createElement('li');
-          li.textContent = item;
-          listEl.appendChild(li);
-        });
-      };
-
-      if (suicideFlag) {
-        resultCard.classList.add('danger');
-        titleEl.textContent = '⚠ You seem in emotional danger.';
-        textEl.textContent = 'Please pause. Avoid sending the message and reach out to someone you trust or a professional right now.';
-        addListItems([
-          'Call or text a trusted friend, family member, or helpline.',
-          'Step away from devices and focus on calming activities.',
-          'Avoid making big decisions until you feel safer.',
-        ]);
-      } else if (score <= 2) {
-        resultCard.classList.add('safe');
-        titleEl.textContent = '✅ Looks safer to send.';
-        textEl.textContent = 'You seem fairly calm. If your message is respectful and clear, it’s probably okay to send.';
-        addListItems([
+    const coachTips = {
+      safe: {
+        title: '✅ Looks safer to send.',
+        text: 'You seem fairly calm. If your message is respectful and clear, it’s probably okay to send.',
+        items: [
           'Scan for tone—remove blame, sarcasm, or insults.',
           'State what you need clearly and briefly.',
           'Consider a gentle opener, like “Wanted to share how I’m feeling.”',
-        ]);
-      } else if (score <= 5) {
-        resultCard.classList.add('caution');
-        titleEl.textContent = '⚠ Think twice before sending.';
-        textEl.textContent = 'There are some stress signals here. Saving the draft and revisiting tomorrow could help you respond thoughtfully.';
-        addListItems([
+        ],
+      },
+      caution: {
+        title: '⚠ Think twice before sending.',
+        text: 'There are some stress signals here. Saving the draft and revisiting tomorrow could help you respond thoughtfully.',
+        items: [
           'Save this as a draft and sleep on it.',
           'Ask a trusted person to review the message first.',
           'Rewrite focusing on facts and specific requests, not assumptions.',
-        ]);
-      } else {
-        resultCard.classList.add('danger');
-        titleEl.textContent = '🛑 High risk of regret.';
-        textEl.textContent = 'You sound overwhelmed. Strongly consider not sending this now and revisiting when calmer.';
-        addListItems([
+        ],
+      },
+      danger: {
+        title: '🛑 High risk of regret.',
+        text: 'You sound overwhelmed. Strongly consider not sending this now and revisiting when calmer.',
+        items: [
           'Close the app and do something soothing for 20 minutes.',
           'Write a private journal version instead of sending.',
           'Set a reminder to review this message tomorrow with a clear head.',
-        ]);
-      }
+        ],
+      },
+      crisis: {
+        title: '⚠ You seem in emotional danger.',
+        text: 'Please pause. Avoid sending the message and reach out to someone you trust or a professional right now.',
+        items: [
+          'Call or text a trusted friend, family member, or helpline.',
+          'Step away from devices and focus on calming activities.',
+          'Avoid making big decisions until you feel safer.',
+        ],
+      },
+    };
 
-      resultCard.style.display = 'block';
-      resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    const evaluateAnswers = (answers) => {
+      const valueScore = (v, mapping) => mapping[v] ?? 0;
+      const score =
+        valueScore(answers.q1, { '1': 2, '2': 2, '3': 1 }) +
+        valueScore(answers.q2, { '1': 2, '2': 2, '3': 1 }) +
+        valueScore(answers.q3, { 'Yes, a lot': 2, 'Yes, a little': 1 }) +
+        valueScore(answers.q4, { 'No': 2, 'Not sure': 1 }) +
+        valueScore(answers.q5, { 'A little': 3, Yes: 3 });
 
-    function validateInputs() {
-      const message = document.getElementById('message').value.trim();
-      const allAnswered = Object.values(answers).every((val) => val !== null);
-      if (!message || !allAnswered) {
-        alert('Please enter your message and answer all 5 questions.');
-        return false;
-      }
-      return true;
-    }
+      const suicideFlag = answers.q5 === 'A little' || answers.q5 === 'Yes';
 
-    function resetForm() {
-      document.getElementById('message').value = '';
-      document.querySelectorAll('.chip.selected').forEach((chip) => chip.classList.remove('selected'));
-      Object.keys(answers).forEach((key) => (answers[key] = null));
-      resultCard.style.display = 'none';
-      updateProgress();
-    }
+      if (suicideFlag) return { category: 'crisis', score };
+      if (score <= 2) return { category: 'safe', score };
+      if (score <= 5) return { category: 'caution', score };
+      return { category: 'danger', score };
+    };
 
-    document.querySelectorAll('.question').forEach((question) => {
-      question.addEventListener('click', handleChipClick);
-    });
+    const ChipRow = ({ options, selectedValue, onSelect }) => (
+      <div className="chip-row">
+        {options.map((value) => (
+          <button
+            key={value}
+            type="button"
+            className={`chip ${selectedValue === value ? 'selected' : ''}`}
+            onClick={() => onSelect(value)}
+            aria-pressed={selectedValue === value}
+          >
+            {value}
+          </button>
+        ))}
+      </div>
+    );
 
-    updateProgress();
+    const QuestionBlock = ({ question, value, onSelect }) => (
+      <div className="question" data-question={question.id}>
+        <div className="question-title">
+          {question.title}
+          <span className="hint">{question.hint}</span>
+        </div>
+        <ChipRow options={question.options} selectedValue={value} onSelect={onSelect} />
+      </div>
+    );
 
-    document.getElementById('check').addEventListener('click', () => {
-      if (!validateInputs()) return;
-      const result = evaluateScore();
-      showResult(result);
-    });
+    const ResultPanel = ({ result }) => {
+      if (!result) return null;
+      const payload = coachTips[result.category];
+      return (
+        <section className={`card result ${result.category} show`} id="result-card">
+          <div className="result-title" id="result-title">{payload.title}</div>
+          <p id="result-text">{payload.text}</p>
+          <ul id="result-list">
+            {payload.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <div className="support-bar">
+            <div className="support-chip">✨ Try a 30s box-breathing reset</div>
+            <div className="support-chip">📞 Reach out to a trusted person</div>
+            <div className="support-chip">📝 Save as draft & revisit later</div>
+          </div>
+        </section>
+      );
+    };
 
-    document.getElementById('reset').addEventListener('click', resetForm);
+    const App = () => {
+      const [message, setMessage] = useState('');
+      const [answers, setAnswers] = useState(initialAnswers);
+      const [result, setResult] = useState(null);
+      const [error, setError] = useState('');
+
+      const answeredCount = useMemo(
+        () => Object.values(answers).filter((val) => val !== null).length,
+        [answers]
+      );
+
+      const handleSelect = (id, value) => {
+        setAnswers((prev) => ({ ...prev, [id]: value }));
+        setResult(null);
+        setError('');
+      };
+
+      const handleReset = () => {
+        setMessage('');
+        setAnswers(initialAnswers);
+        setResult(null);
+        setError('');
+      };
+
+      const handleCheck = () => {
+        if (!message.trim()) {
+          setError('Please enter the message you plan to send.');
+          return;
+        }
+        if (answeredCount !== questionData.length) {
+          setError('Please answer all 5 check-in questions.');
+          return;
+        }
+        setError('');
+        const evaluation = evaluateAnswers(answers);
+        setResult(evaluation);
+        requestAnimationFrame(() => {
+          document.getElementById('result-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      };
+
+      return (
+        <main className="container">
+          <section className="card">
+            <h1>BetterThink2Ice – Message Safety Check</h1>
+            <div className="subhead">
+              A gentle, Apple-inspired coach before you press send.
+              <span>
+                <strong>1</strong> minute calm-check • Guided in-line tips
+              </span>
+            </div>
+            <p>
+              Paste or type your message and follow the guided prompts. Each response updates your personal readiness meter so you
+              know whether to send, hold, or reach out.
+            </p>
+          </section>
+
+          <section className="card">
+            <div className="question">
+              <div className="question-title">
+                Your message
+                <span className="hint">Keep it short &amp; specific</span>
+              </div>
+              <textarea
+                id="message"
+                placeholder="Type or paste the message you plan to send..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            </div>
+            <p className="subtle">
+              Tip: Lead with curiosity. For example, “Can we talk about what happened earlier?” instead of accusations.
+            </p>
+          </section>
+
+          <section className="card" id="questions-card">
+            {questionData.map((question) => (
+              <QuestionBlock
+                key={question.id}
+                question={question}
+                value={answers[question.id]}
+                onSelect={(value) => handleSelect(question.id, value)}
+              />
+            ))}
+
+            <div className="actions">
+              <button className="primary" type="button" onClick={handleCheck}>
+                Check Safety
+              </button>
+              <button className="secondary" type="button" onClick={handleReset}>
+                Reset
+              </button>
+              <div className="progress-pill" id="progress-pill">
+                <span className="dot"></span>
+                <span id="progress-label">{answeredCount}/{questionData.length} answered</span>
+              </div>
+            </div>
+            {error && <p className="error" role="alert">{error}</p>}
+          </section>
+
+          <ResultPanel result={result} />
+        </main>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
