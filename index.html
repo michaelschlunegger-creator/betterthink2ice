@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BetterThink2Ice – Message Safety Check</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --primary: #2563eb;
+      --border: #e5e7eb;
+      --chip-bg: #e5e7eb;
+      --chip-selected: #2563eb;
+      --chip-selected-text: #fff;
+      --danger: #fca5a5;
+      --danger-strong: #f87171;
+      --warning: #fbbf24;
+      --safe: #34d399;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 32px 12px;
+    }
+
+    .container {
+      max-width: 880px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    p {
+      margin: 8px 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      resize: vertical;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      background: #f9fafb;
+    }
+
+    .question {
+      margin-bottom: 14px;
+    }
+
+    .question-title {
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 18px;
+      background: var(--chip-bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      font-size: 14px;
+    }
+
+    .chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .chip.selected {
+      background: var(--chip-selected);
+      border-color: var(--chip-selected);
+      color: var(--chip-selected-text);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      font-weight: 600;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      border: 1px solid var(--border);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .result {
+      display: none;
+      border-left: 5px solid transparent;
+    }
+
+    .result.safe {
+      background: #ecfdf3;
+      border-left-color: var(--safe);
+    }
+
+    .result.caution {
+      background: #fffbeb;
+      border-left-color: var(--warning);
+    }
+
+    .result.danger {
+      background: #fef2f2;
+      border-left-color: var(--danger-strong);
+    }
+
+    .result-title {
+      margin: 0 0 6px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    ul {
+      margin: 8px 0 0 16px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>BetterThink2Ice – Message Safety Check</h1>
+      <p>Paste or type your message and take a quick emotional pulse check before hitting send. A few seconds here could save hours of regret.</p>
+    </section>
+
+    <section class="card">
+      <div class="question">
+        <div class="question-title">Your message</div>
+        <textarea id="message" placeholder="Type or paste the message you plan to send..."></textarea>
+      </div>
+    </section>
+
+    <section class="card" id="questions-card">
+      <div class="question" data-question="q1">
+        <div class="question-title">1. Emotional state (1–5, where 1 = very bad, 5 = very good)</div>
+        <div class="chip-row">
+          <div class="chip" data-value="1">1</div>
+          <div class="chip" data-value="2">2</div>
+          <div class="chip" data-value="3">3</div>
+          <div class="chip" data-value="4">4</div>
+          <div class="chip" data-value="5">5</div>
+        </div>
+      </div>
+
+      <div class="question" data-question="q2">
+        <div class="question-title">2. Stress level (1–5, where 1 = very stressed, 5 = no stress)</div>
+        <div class="chip-row">
+          <div class="chip" data-value="1">1</div>
+          <div class="chip" data-value="2">2</div>
+          <div class="chip" data-value="3">3</div>
+          <div class="chip" data-value="4">4</div>
+          <div class="chip" data-value="5">5</div>
+        </div>
+      </div>
+
+      <div class="question" data-question="q3">
+        <div class="question-title">3. Have you felt hurt, rejected, or angry today?</div>
+        <div class="chip-row">
+          <div class="chip" data-value="Yes, a lot">Yes, a lot</div>
+          <div class="chip" data-value="Yes, a little">Yes, a little</div>
+          <div class="chip" data-value="Not really">Not really</div>
+          <div class="chip" data-value="No">No</div>
+        </div>
+      </div>
+
+      <div class="question" data-question="q4">
+        <div class="question-title">4. Do you feel emotionally safe right now?</div>
+        <div class="chip-row">
+          <div class="chip" data-value="Yes">Yes</div>
+          <div class="chip" data-value="Not sure">Not sure</div>
+          <div class="chip" data-value="No">No</div>
+        </div>
+      </div>
+
+      <div class="question" data-question="q5">
+        <div class="question-title">5. Any thoughts of harming yourself or wishing you were not here?</div>
+        <div class="chip-row">
+          <div class="chip" data-value="No">No</div>
+          <div class="chip" data-value="A little">A little</div>
+          <div class="chip" data-value="Yes">Yes</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="check">Check Safety</button>
+        <button class="secondary" id="reset">Reset</button>
+      </div>
+    </section>
+
+    <section class="card result" id="result-card">
+      <div class="result-title" id="result-title"></div>
+      <p id="result-text"></p>
+      <ul id="result-list"></ul>
+    </section>
+  </main>
+
+  <script>
+    const answers = { q1: null, q2: null, q3: null, q4: null, q5: null };
+
+    function clearSelections(questionEl) {
+      questionEl.querySelectorAll('.chip').forEach((chip) => chip.classList.remove('selected'));
+    }
+
+    function handleChipClick(event) {
+      const chip = event.target;
+      if (!chip.classList.contains('chip')) return;
+      const questionEl = chip.closest('[data-question]');
+      const questionKey = questionEl.dataset.question;
+      clearSelections(questionEl);
+      chip.classList.add('selected');
+      answers[questionKey] = chip.dataset.value;
+    }
+
+    function evaluateScore() {
+      let score = 0;
+      let suicideFlag = false;
+
+      const q1 = Number(answers.q1);
+      const q2 = Number(answers.q2);
+      const q3 = answers.q3;
+      const q4 = answers.q4;
+      const q5 = answers.q5;
+
+      if (q1 === 1 || q1 === 2) score += 2;
+      else if (q1 === 3) score += 1;
+
+      if (q2 === 1 || q2 === 2) score += 2;
+      else if (q2 === 3) score += 1;
+
+      if (q3 === 'Yes, a lot') score += 2;
+      else if (q3 === 'Yes, a little') score += 1;
+
+      if (q4 === 'No') score += 2;
+      else if (q4 === 'Not sure') score += 1;
+
+      if (q5 === 'A little' || q5 === 'Yes') {
+        score += 3;
+        suicideFlag = true;
+      }
+
+      return { score, suicideFlag };
+    }
+
+    function showResult({ score, suicideFlag }) {
+      const resultCard = document.getElementById('result-card');
+      const titleEl = document.getElementById('result-title');
+      const textEl = document.getElementById('result-text');
+      const listEl = document.getElementById('result-list');
+
+      resultCard.classList.remove('safe', 'caution', 'danger');
+
+      listEl.innerHTML = '';
+
+      const addListItems = (items) => {
+        items.forEach((item) => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          listEl.appendChild(li);
+        });
+      };
+
+      if (suicideFlag) {
+        resultCard.classList.add('danger');
+        titleEl.textContent = '⚠ You seem in emotional danger.';
+        textEl.textContent = 'Please pause. Avoid sending the message and reach out to someone you trust or a professional right now.';
+        addListItems([
+          'Call or text a trusted friend, family member, or helpline.',
+          'Step away from devices and focus on calming activities.',
+          'Avoid making big decisions until you feel safer.',
+        ]);
+      } else if (score <= 2) {
+        resultCard.classList.add('safe');
+        titleEl.textContent = '✅ Looks safer to send.';
+        textEl.textContent = 'You seem fairly calm. If your message is respectful and clear, it’s probably okay to send.';
+        addListItems([
+          'Scan for tone—remove blame, sarcasm, or insults.',
+          'State what you need clearly and briefly.',
+          'Consider a gentle opener, like “Wanted to share how I’m feeling.”',
+        ]);
+      } else if (score <= 5) {
+        resultCard.classList.add('caution');
+        titleEl.textContent = '⚠ Think twice before sending.';
+        textEl.textContent = 'There are some stress signals here. Saving the draft and revisiting tomorrow could help you respond thoughtfully.';
+        addListItems([
+          'Save this as a draft and sleep on it.',
+          'Ask a trusted person to review the message first.',
+          'Rewrite focusing on facts and specific requests, not assumptions.',
+        ]);
+      } else {
+        resultCard.classList.add('danger');
+        titleEl.textContent = '🛑 High risk of regret.';
+        textEl.textContent = 'You sound overwhelmed. Strongly consider not sending this now and revisiting when calmer.';
+        addListItems([
+          'Close the app and do something soothing for 20 minutes.',
+          'Write a private journal version instead of sending.',
+          'Set a reminder to review this message tomorrow with a clear head.',
+        ]);
+      }
+
+      resultCard.style.display = 'block';
+    }
+
+    function validateInputs() {
+      const message = document.getElementById('message').value.trim();
+      const allAnswered = Object.values(answers).every((val) => val !== null);
+      if (!message || !allAnswered) {
+        alert('Please enter your message and answer all 5 questions.');
+        return false;
+      }
+      return true;
+    }
+
+    function resetForm() {
+      document.getElementById('message').value = '';
+      document.querySelectorAll('.chip.selected').forEach((chip) => chip.classList.remove('selected'));
+      Object.keys(answers).forEach((key) => (answers[key] = null));
+      const resultCard = document.getElementById('result-card');
+      resultCard.style.display = 'none';
+    }
+
+    document.querySelectorAll('.question').forEach((question) => {
+      question.addEventListener('click', handleChipClick);
+    });
+
+    document.getElementById('check').addEventListener('click', () => {
+      if (!validateInputs()) return;
+      const result = evaluateScore();
+      showResult(result);
+    });
+
+    document.getElementById('reset').addEventListener('click', resetForm);
+  </script>
+</body>
+</html>
