@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  @apply antialiased;
+}
+
+body {
+  @apply bg-surface text-slate-50 min-h-screen;
+  background-image: linear-gradient(145deg, rgba(99,102,241,0.08), rgba(14,165,233,0.07)),
+    radial-gradient(circle at 20% 20%, rgba(236,72,153,0.15), transparent 30%),
+    radial-gradient(circle at 80% 0%, rgba(56,189,248,0.12), transparent 30%);
+  background-blend-mode: screen, normal;
+}
+
+.glass {
+  @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-glass;
+}
+
+.glow-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(99,102,241,0.65), rgba(14,165,233,0.5), rgba(236,72,153,0.6));
+  mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.card-hover {
+  @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-glow;
+}
+
+.gradient-text {
+  background: linear-gradient(120deg, #a5b4fc, #f472b6, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-max {
+  @apply max-w-6xl mx-auto px-6 lg:px-10;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(99,102,241,0.7), rgba(14,165,233,0.6));
+  border-radius: 9999px;
+}
